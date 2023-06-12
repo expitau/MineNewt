@@ -265,7 +265,7 @@ fn read_neural_net_file(filename: &Path) -> io::Result<Vec<Vec<Vec<f64>>>> {
 fn main() {
     let network_data = read_neural_net_file(Path::new("../training/example.newt")).unwrap();
 
-    let output = propagate(&network_data, &vec![1.0, -1.0, -1.0, 1.0]);
+    let output = propagate(&network_data, &vec![-1.0, 1.0, -1.0, -1.0]);
     println!("{:?}", output);
     // let a = Stochastic::new(0.5);
     // let b = Stochastic::new(0.7);

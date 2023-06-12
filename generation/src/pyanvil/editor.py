@@ -1,5 +1,6 @@
 from pyanvil import world
 import pyanvil.nbt as nbt
+import numpy as np
 
 
 def setBlock(save_file, block_pos, state):
@@ -79,7 +80,7 @@ class Schema:
                                     f"WARNING: '{block}' not found in palette")
                             block = None
                         tmp[dy][dx][dz] = block
-        self.data = tmp
+        self.data = np.array(tmp)
 
     def __str__(self):
         out = "\n=== Schema ===\n"
@@ -98,56 +99,45 @@ class Schema:
         return hash(self.data)
 
     def __eq__(self, other):
-        return self.data == other.data
+        return type(self) == type(other) and other != None and self.data == other.data
 
     def join(self, other, offset=(0, 0, 0), force=True):
         x_offset, y_offset, z_offset = offset
 
         dirty = False
 
-        xStart, xEnd = min(0, offset[0]), max(
-            self.size[0], other.size[0] + offset[0])
-        yStart, yEnd = min(0, offset[1]), max(
-            self.size[1], other.size[1] + offset[1])
-        zStart, zEnd = min(0, offset[2]), max(
-            self.size[2], other.size[2] + offset[2])
+        outStart = (min(0, offset[0]), min(0, offset[1]), min(0, offset[2]))
+        outEnd = (max(self.size[0], other.size[0] + offset[0]), max(self.size[1],
+                  other.size[1] + offset[1]), max(self.size[2], other.size[2] + offset[2]))
+
+        selfStart = (max(0, -offset[0]), max(0, -offset[1]), max(0, -offset[2]))
+        selfEnd = tuple(a + b for a, b in zip(selfStart, self.size))
+
+        otherStart = (max(0, offset[0]), max(0, offset[1]), max(0, offset[2]))
+        otherEnd = tuple(a + b for a, b in zip(otherStart, other.size))
+
+        # print(f"self: {selfStart} -> {selfEnd}")
+        # print(f"other: {otherStart} -> {otherEnd}")
+
+        xStart, yStart, zStart = outStart
+        xEnd, yEnd, zEnd = outEnd
 
         xSize, ySize, zSize = xEnd - xStart, yEnd - yStart, zEnd - zStart
 
-        new_data = [[[None for z in range(zSize)]
-                     for x in range(xSize)] for y in range(ySize)]
+        new_data = np.full((ySize, xSize, zSize), None, dtype=object)
 
-        for x in range(xSize):
-            for y in range(ySize):
-                for z in range(zSize):
-                    x1, y1, z1 = x + xStart, y + yStart, z + zStart
-                    x2, y2, z2 = x1 - x_offset, y1 - y_offset, z1 - z_offset
+        selfMask = np.full((ySize, xSize, zSize), False, dtype=bool)
+        otherMask = np.full((ySize, xSize, zSize), False, dtype=bool)
 
-                    p1, p2 = None, None
+        selfMask[selfStart[1]:selfEnd[1], selfStart[0]:selfEnd[0], selfStart[2]:selfEnd[2]] = True
+        otherMask[otherStart[1]:otherEnd[1], otherStart[0]:otherEnd[0], otherStart[2]:otherEnd[2]] = other.data != None
 
-                    # If x1 y1 and z1 are all positive and less than the size of self.data
-                    if 0 <= x1 < self.size[0] and 0 <= y1 < self.size[1] and 0 <= z1 < self.size[2]:
-                        p1 = self.data[y1][x1][z1]
+        # print(len(new_data[selfMask]))
+        # print(len(new_data[otherMask]))
 
-                    # If x2 y2 and z2 are all positive and less than the size of other.data
-                    if 0 <= x2 < other.size[0] and 0 <= y2 < other.size[1] and 0 <= z2 < other.size[2]:
-                        p2 = other.data[y2][x2][z2]
+        new_data[selfMask] = self.data.ravel()
+        new_data[otherMask] = other.data[other.data != None]
 
-                    # If both p1 and p2 are not None, then we have a conflict
-                    if p1 is not None and p2 is not None and p1 != p2 and not force:
-                        raise ValueError(
-                            f"Conflict at ({x}, {y}, {z}) with {p1.name} and {p2.name}")
-
-                    if (p1 is None and p2 is not None) or (p1 is not None and p2 is None) or (p1 is not None and p2 is not None and p1 != p2 and force):
-                        dirty = True
-
-                    # If one is none, use the other
-                    new_data[y][x][z] = p1 if p2 is None else p2
-
-                    if new_data[y][x][z] is not None and new_data[y][x][z].name == 'minecraft:air':
-                        new_data[y][x][z] = None
-        if not dirty:
-            raise ValueError("Warning: No blocks set")
         return Schema(new_data)
 
     def clone(self):
@@ -170,9 +160,11 @@ class Schema:
         return Schema(new_data)
 
     def write(self, save_file, pos):
-        for dy, layer in enumerate(self.parseRedstone().data):
-            print(f"Writing layer {dy}")
+        data = self.parseRedstone().data
+        for dy, layer in enumerate(data):
+            # print(f"Writing layer {dy}")
             for dx, row in enumerate(layer):
+                print(f"Writing layer {dy}/{len(data)} row {dx}/{len(layer)}")
                 for dz, block in enumerate(row):
                     block_pos = (pos[0] - dx, pos[1] + dy, pos[2] + dz)
                     if block is not None:
@@ -185,7 +177,6 @@ def getSides(data, pos):
     for i in range(4):
         sides[i] = getSide(data, pos, i)
 
-
     for i in range(4):
         if sides[i] != 'none' and sides[(i + 1) % 4] == 'none' and sides[(i - 1) % 4] == 'none' and sides[(i + 2) % 4] == 'none':
             sides[(i + 2) % 4] = 'side'
@@ -194,13 +185,13 @@ def getSides(data, pos):
 
 
 def getSide(data, pos, d):
-    
+
     def safe_index(data, idx1, idx2, idx3):
         if 0 <= idx1 < len(data) and 0 <= idx2 < len(data[0]) and 0 <= idx3 < len(data[0][0]):
             return data[idx1][idx2][idx3]
         return None
     dirs = [(0, -1), (-1, 0), (0, 1), (1, 0)]
-    
+
     down = safe_index(data, pos[1] - 1, pos[0] + dirs[d][0], pos[2] + dirs[d][1])
     center = safe_index(data, pos[1], pos[0] + dirs[d][0], pos[2] + dirs[d][1])
     up = safe_index(data, pos[1] + 1, pos[0] + dirs[d][0], pos[2] + dirs[d][1])
@@ -213,7 +204,7 @@ def getSide(data, pos, d):
     if up:
         if up.name == 'minecraft:redstone_wire' and (not top or top.name in transparent):
             return 'up'
-        
+
     if center:
         if center.name in ['minecraft:redstone_wire', 'minecraft:redstone_torch', 'minecraft:redstone_wall_torch', 'minecraft:target', 'minecraft:lever']:
             return 'side'
@@ -225,7 +216,7 @@ def getSide(data, pos, d):
         if center.name == 'minecraft:observer':
             if facing[center.props['facing']] == (d + 2) % 4:
                 return 'side'
-            
+
     if down:
         if down.name == 'minecraft:redstone_wire' and (not center or center.name in transparent):
             return 'side'

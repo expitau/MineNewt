@@ -19,7 +19,7 @@ class BlockState:
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other.name and self.props == other.props
+        return type(self) == type(other) and other != None and self.name == other.name and self.props == other.props
 
     def clone(self):
         return BlockState(self.name, self.props.copy())
@@ -123,10 +123,6 @@ class Chunk:
         self.sections = sections
         self.raw_nbt = raw_nbt
         
-        if (self.xpos == -1 and self.zpos == 0):
-            with open("chunk-pre.json", "w+") as file:
-                file.write(f"{{{str(self.raw_nbt)}}}")
-                
         self.orig_size = orig_size
         
     def get_block(self, block_pos):
@@ -219,10 +215,6 @@ class Chunk:
     def pack(self):
         print(f"Serializing chunk ({self.xpos}, {self.zpos})")
         
-        if (self.xpos == -1 and self.zpos == 0):
-            with open("chunk-post.json", "w+") as file:
-                file.write(f"{{{str(self.raw_nbt)}}}")
-
         new_sections = nbt.ListTag(nbt.CompoundTag.clazz_id, tag_name='sections', children=[
             self.sections[sec].serialize() for sec in self.sections
         ])

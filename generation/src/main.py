@@ -3,11 +3,46 @@ from pyanvil import editor
 from schema import schema
 import load
 
-# Load the world folder relative to the current working dir
-myWorld = world.World('../save')
+myWorld = world.World('saves/save')
 networkData = load.read_neural_net_file('../training/example.newt')
 
-schema.network([4, 4, 4], networkData).write(myWorld, (0, 60, 0))
-# schema.clockLineSegment().write(myWorld, (0, 80, 0))
+schema.network(networkData).write(myWorld, (0, 60, 0))
 
-myWorld.close('../save2')
+# s1 = editor.Schema([
+#     [
+#         [' A ', ' A ', ' A ', ' A ', ' A '],
+#     ]
+# ], {
+#     ' A ': 'minecraft:stone'
+# })
+
+# s2 = editor.Schema([
+#     [
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#     ],
+#     [
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#     ],
+#     [
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#         [' B ', ' B ', ' B '],
+#     ],
+#     [
+#         ['   ', ' B ', ' B '],
+#         [' B ', '   ', ' B '],
+#         [' B ', ' B ', '   '],
+#     ],
+# ], {
+#     ' B ': 'minecraft:dirt'
+# })
+
+# print(s1)
+# print(s2)
+# print(s2.join(s1, (1, 2, -1), True))
+
+myWorld.close('saves/save2')

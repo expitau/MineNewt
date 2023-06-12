@@ -81,9 +81,9 @@ def weightSegment(weight):
             ['   ', ' B ', '   ', ' B ', '   ', ' B ', '   ', ' B ', '   ', 'B3 ', '   ', '   ', '   ', '   ', '   ', '   '],
             ['   ', ' - ', '   ', ' - ', '   ', ' - ', '   ', ' - ', '   ', ' - ', 'Ro ', 'Rrs', 'Rrs', ' - ', '   ', '   '],
             ['   ', ' B ', '   ', ' B ', '   ', ' B ', '   ', ' B ', '   ', 'Rr2', '   ', '   ', ' B ', ' - ', '   ', '   '],
-            ['   ', ' B ', '   ', ' G ', 'Bb2', ' B ', '   ', ' G ', 'Bb8', 'B3 ', 'Rts', ' - ', '   ', 'Rr3', '   ', '   '],
+            ['   ', ' B ', '   ', ' G ', 'Bb2', ' B ', '   ', ' G ', 'Bb8', 'B3 ', 'Rts', ' - ', '   ', 'Rrw3', '   ', '   '],
             ['   ', ' B ', '   ', ' - ', 'Rce', '   ', '   ', ' - ', 'Rce', 'B3 ', '   ', 'Rr2', '   ', ' - ', '   ', '   '],
-            ['   ', '   ', '   ', '   ', ' B ', '   ', '   ', '   ', ' B ', 'B3 ', ' - ', 'Rrn', ' B ', 'Rr4', '   ', '   '],
+            ['   ', '   ', '   ', '   ', ' B ', '   ', '   ', '   ', ' B ', 'B3 ', ' - ', 'Rrn', ' B ', 'Rrw4', '   ', '   '],
             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', ' - ', '   ', '   '],
             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', ' - ', '   ', '   '],
             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', ' - ', '   ', '   '],
@@ -195,7 +195,7 @@ def weightSegment(weight):
          'Bb4': world.BlockState('minecraft:barrel', {'facing': 'west'}, [('minecraft:wooden_shovel', 1) for _ in range(7)]),
          'Bb8': world.BlockState('minecraft:barrel', {'facing': 'west'}, [('minecraft:wooden_shovel', 1) for _ in range(14)]),
          'Bb+': world.BlockState('minecraft:barrel', {'facing': 'west'}, [('minecraft:wooden_shovel', 1) for _ in range(27)]),
-         'Bb?': world.BlockState('minecraft:barrel', {'facing': 'west'}, [('minecraft:wooden_shovel', 1) for _ in range(round(weight * 27))]),
+         'Bb?': world.BlockState('minecraft:barrel', {'facing': 'west'}, [('minecraft:wooden_shovel', 1) for _ in range(round((weight / 2 + 0.5) * 27))]),
          #  'Bb ': world.BlockState('minecraft:barrel', {'facing': 'west'}),
          ' H ': world.BlockState('minecraft:hopper', {'facing': 'west'}),
          'Rd ': world.BlockState('minecraft:dropper', {'facing': 'east'}, [('minecraft:wooden_shovel', 1), ('minecraft:stick', 1)]),
@@ -213,6 +213,8 @@ def weightSegment(weight):
          'Rr2': world.BlockState('minecraft:repeater', {'facing': 'east', 'delay': '2', 'locked': 'false'}),
          'Rr3': world.BlockState('minecraft:repeater', {'facing': 'east', 'delay': '3', 'locked': 'false'}),
          'Rr4': world.BlockState('minecraft:repeater', {'facing': 'east', 'delay': '4', 'locked': 'false'}),
+         'Rrw3': world.BlockState('minecraft:repeater', {'facing': 'west', 'delay': '3', 'locked': 'false'}),
+         'Rrw4': world.BlockState('minecraft:repeater', {'facing': 'west', 'delay': '4', 'locked': 'false'}),
          'Rrn3': world.BlockState('minecraft:repeater', {'facing': 'north', 'delay': '3', 'locked': 'false'}),
          'Rrn4': world.BlockState('minecraft:repeater', {'facing': 'north', 'delay': '4', 'locked': 'false'}),
          'Rt ': world.BlockState('minecraft:redstone_torch'),
@@ -250,28 +252,28 @@ def activationSegment(clamp):
             [[' G ', ' - ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ['   ', '   ', 'Rt ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              [' - ', 'Rtn', ' B ', 'Rts', ' - ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['   ', '   ', 'Rre', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
+             ['   ', 'B2 ', 'Rre', 'B2 ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              [' - ', '   ', ' B ', '   ', ' - ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              [' B ', ' G ', ' - ', ' G ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ],
             [[' - ', ' G ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              [' T ', '   ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['Rte', '   ', ' - ', '   ', 'Rte', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', '   ', '   ', '   ', '   '],
+             ['Rte', '   ', ' - ', '   ', 'Rte', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'B2 ', '   ', '   ', '   ', '   '],
+             ['B2 ', ' - ', 'B2 ', ' - ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', 'B2 ', '   ', '   ', ' T ', '   '],
              ['Rtw', '   ', '   ', '   ', 'Rtw', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              [' - ', ' - ', '   ', ' - ', ' - ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ],
             [['   ', ' - ', ' - ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['   ', '   ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             [' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', 'B2 ', '   ', 'B2 ', '   '],
+             ['   ', '   ', ' B ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', ' - ', 'B2 ', '   ', 'B2 ', '   '],
+             ['   ', '   ', ' - ', '   ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', '   ', '   ', 'Rt ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ],
             [['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
-             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'B2 ', 'Rrs', 'Ro ', ' - ', 'B2 '],
+             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'B2 ', 'Rrs', 'Ro ', ' - ', '   '],
+             ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'B2 ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
              ],
@@ -311,23 +313,15 @@ def clockSegment(height=5):
         [
             [
                 ['   ', '   ', '   '],
-                [' B ', '   ', '   '],
+                ['   ', '   ', ' T '],
             ],
             [
                 ['   ', '   ', '   '],
-                ['Rt ', '   ', '   '],
+                ['   ', '   ', 'Rt '],
             ],
             [
                 ['   ', '   ', '   '],
-                [' T ', 'Rts', '   '],
-            ],
-            [
-                ['   ', '   ', '   '],
-                ['   ', ' B ', '   '],
-            ],
-            [
-                ['   ', '   ', '   '],
-                ['   ', 'Rt ', '   '],
+                ['   ', 'Rtn', ' B '],
             ],
             [
                 ['   ', '   ', '   '],
@@ -367,11 +361,15 @@ def clockSegment(height=5):
             ],
             [
                 ['   ', '   ', '   '],
-                ['   ', ' - ', ' G '],
+                ['   ', 'Rt ', '   '],
             ],
             [
                 ['   ', '   ', '   '],
-                ['   ', '   ', ' - '],
+                ['   ', ' B ', '   '],
+            ],
+            [
+                ['   ', '   ', '   '],
+                ['   ', ' - ', '   '],
             ],
         ],
         {' O ': 'minecraft:air',
@@ -404,11 +402,11 @@ def clockSegment(height=5):
             [
                 [
                     ['   ', '   ', '   '],
-                    ['   ', '   ', ' G '],
+                    [' G ', '   ', '   '],
                 ],
                 [
                     ['   ', '   ', '   '],
-                    ['   ', ' G ', ' - '],
+                    [' - ', ' G ', '   '],
                 ],
                 [
                     ['   ', '   ', '   '],
@@ -472,7 +470,7 @@ def neuron(weights, bias, height=5):
         activationSegment(round(math.log2(inputSize))),
         (res.size[0] - 3, res.size[1] - 6, -2),
         force=True)
-    res = res.join(clockSegment(height), (0, 1, res.size[2] - 3), force=True)
+    res = res.join(clockSegment(height), (res.size[0] - 4, 1, res.size[2] - 5), force=True)
     return res
 
 
@@ -505,19 +503,19 @@ def inLineSegment(flipDir=False):
 def clockLineSegment():
     return editor.Schema([
         [
+            ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   '],
             [' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B ', ' B '],
-            ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ']
         ],
         [
+            ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'Rte', '   ', '   '],
             [' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', ' - ', 'Rr4', ' B ', 'Rr3', ' - '],
-            ['   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', '   ', 'Rtw', '   ', '   ']
         ]
     ],
         {
         ' B ': 'minecraft:light_blue_concrete',
         ' - ': world.BlockState('minecraft:redstone_wire', {'north': 'side', 'south': 'side', 'east': 'side', 'west': 'side'}),
         'Rr3': world.BlockState('minecraft:repeater', {'facing': 'north', 'delay': '3'}),
-        'Rtw': world.BlockState('minecraft:redstone_wall_torch', {'facing': 'west'}),
+        'Rte': world.BlockState('minecraft:redstone_wall_torch', {'facing': 'east'}),
         'Rr4': world.BlockState('minecraft:repeater', {'facing': 'north', 'delay': '4'}),
     })
 
@@ -556,11 +554,12 @@ def layer(inputSize, outputSize, layerData):
     for i in range(outputSize):
         print("Generating neuron...")
         res = res.join(
-            neuron(layerData[i][1:], layerData[i][0], max(5, round(2 + math.log2(inputSize + 1)))), (0, 0, -adderSegment.size[2]))
+            neuron(layerData[i][1:], layerData[i][0], max(8, round(2 + math.log2(inputSize + 1)))), (0, 0, -adderSegment.size[2]))
     return res
 
 
-def network(sizes, networkData):
+def network(networkData):
+    sizes = [4, 16, 4]
     res = layer(sizes[0], sizes[1], networkData[0])
     clockWire = editor.Schema([[[]]], {})
     for i in range(sizes[1]):
@@ -599,26 +598,6 @@ def network(sizes, networkData):
             (res.size[0] - m.size[0] - 5, res.size
              [1] - l.size[1] + 1, 2), force=True)
 
-    res = res.join(clockWire, (0, 1, -3), force=True)
-
-    # Top layer clock for activation
-    topClockWireSegment = editor.Schema([
-        [[' B '], [' B '], [' B '], [' B '], [' B '], [' B '], [' B '], [' B ']],
-        [[' - '], [' - '], ['Rr3'], ['Rr4'], [' - '], [' - '], [' - '], [' - ']]
-    ], {
-        ' B ': 'minecraft:light_blue_concrete',
-        ' - ': world.BlockState('minecraft:redstone_wire', {'north': 'side', 'south': 'side', 'east': 'side', 'west': 'side'}),
-        'Rr3': world.BlockState('minecraft:repeater', {'facing': 'east', 'delay': '3'}),
-        'Rr4': world.BlockState('minecraft:repeater', {'facing': 'east', 'delay': '4'}),
-    })
-    topClockWire = editor.Schema([[[]]], {})
-    for i in range(sizes[-2] + 1):
-        topClockWire = topClockWire.join(topClockWireSegment, (-adderSegment.size[0], 0, 0))
-    topClockWire = topClockWire.join(editor.Schema([[[' B ']], [['Rt ']], [[' B ']]], {
-        ' B ': 'minecraft:light_blue_concrete',
-        'Rt ': world.BlockState('minecraft:redstone_torch'),
-    }), (0, -1, 0), force=True)
-    for nz in range(sizes[-1]):
-        res = res.join(topClockWire, (1, res.size[1] - 3, (adderSegment.size[2] * nz) + adderSegment.size[2] + 2), force=True)
+    res = res.join(clockWire, (res.size[0] - 3, 1, -3), force=True)
 
     return res
