@@ -9,4 +9,4 @@ def read_neural_net_file(filename):
                 node = list(map(float, f.readline().strip().split()))  # read a line and convert to float
                 layer.append(node)
             layers.append(layer)
-        return layers
+        return [len(layers[0][0]) - 1] + layers_nodes, layers

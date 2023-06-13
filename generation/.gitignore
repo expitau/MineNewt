@@ -1,2 +1,3 @@
-/saves
+/saves/output/**
+!/saves/output/.gitkeep
 __pycache__

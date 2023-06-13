@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Clone)]
 pub enum Activation {
     ReLU,
     Sigmoid,
@@ -16,7 +17,6 @@ pub enum LayerType {
     Input,
 }
 
-// #[derive(Clone)]
 pub struct Layer {
     pub activation_type: Activation,
     pub input_size: usize,
@@ -59,13 +59,13 @@ impl ToString for Layer {
         format!("{}", self.weights.iter().zip(&self.biases).map(|(weights, bias)| {
             format!(
                 "{} {}",
+                (bias * (10.0_f64).powi(precision)).round() / (10.0_f64).powi(precision),
                 weights
                     .iter()
                     .map(|x| (x * (10.0_f64).powi(precision)).round() / (10.0_f64).powi(precision))
                     .map(|x| x.to_string())
                     .collect::<Vec<String>>()
                     .join(" "),
-                (bias * (10.0_f64).powi(precision)).round() / (10.0_f64).powi(precision)
             )
         }).collect::<Vec<String>>().join("\n"))
     }

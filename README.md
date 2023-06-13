@@ -1,8 +1,13 @@
-# WIP README UNDER CONSTRUCTION
----
 # MineNewt: Neural Networks in Minecraft
 
-MineNewt is a unique fusion of machine learning and sandbox gaming, allowing users to build, train, and run neural networks right within the world of Minecraft. It leverages a powerful neural network library written in Rust, along with a Python-based world generation library to create a full-featured, stochastic neural network simulation within the game.
+MineNewt is a neural network created from scratch in Minecraft using redstone. The network is first compiled using a custom rust library, and is then dynamically generated into a Minecraft world. This allows users to train neural networks on arbitrary functions and import them into Minecraft, effectively acting as a Rust compiler targeting Minecraft.
+
+- [Features](#features)
+- [Gallery](#gallery)
+- [How it Works](#how-it-works)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
 
 ## Features
 MineNewt is composed of three main components:
@@ -13,6 +18,11 @@ MineNewt is composed of three main components:
 
 3. **Generation**: A Python library that modifies Minecraft world data, building the neural network from scratch given a `.newt` file. This library allows users to easily import trained networks into their Minecraft worlds.
 
+## Gallery
+
+
+## How it Works
+
 ## Getting Started
 
 ### Prerequisites
@@ -20,23 +30,31 @@ MineNewt is composed of three main components:
 - [Python](https://www.python.org/downloads/) (3.6 or later)
 - [Minecraft](https://www.minecraft.net/en-us/get-minecraft) (Java Edition 1.16+)
 
-### Installation
+### Quick Start
 
 1. Clone this repository:
 ```
 git clone https://github.com/expitau-dev/MineNewt.git
+cd MineNewt
 ```
 
-2. Install the Rust library:
+2. Train the neural network
 ```
-cd MineNewt/training
-cargo build --release
+cd training
+cargo run -r
+cd -
 ```
 
-3. Install the Python library:
+3. Generate the minecraft world
 ```
-cd ../generation
-pip install .
+cd generation
+python3 src/main.py
+cd -
+```
+
+4. Copy the generated world to your Minecraft folder
+```
+cp -r generation/saves/output MINECRAFT_SAVES_DIRECTORY
 ```
 
 ## Usage
@@ -44,33 +62,51 @@ pip install .
 1. **Training Neural Networks**: Use the training library to train a network on a Rust function. Save your network with the `.newt` extension.
 
 ```rust
-use minenewt::train::Network;
-let mut network = Network::new(/* Parameters */);
-network.train(/* Training parameters */);
-network.save("network.newt");
+let _network = train_network(
+  vec![8, 16, 16, 16, 8], // Network architecture, this one is a 8 -> 16 -> 16 -> 16 -> 8 network
+  FloatDataFunction {
+      f: Box::new(test_function), // The function to train on
+      size: (8, 8), // The size of the inputs / outputs of the function
+  },
+  20, // Number of epochs
+);
+
+// Save the network to a file
+let mut file = File::create("../example.newt").unwrap(); 
+file.write_all(_network.to_string().as_bytes()).unwrap();
 ```
 
-2. **Simulating Networks**: Use the simulation library to run simulations on your trained network.
+1. **(Optional) Simulating Networks**: Use the simulation library to run simulations on your trained network.
 
 ```rust
-use minenewt::simulate::Simulator;
-let mut simulator = Simulator::new("network.newt");
-simulator.run(/* Simulation parameters */);
+let network_data = read_neural_net_file(Path::new("../example.newt")).unwrap();
+
+let input = vec![1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0, 1.0];
+
+let output = propagate(&network_data, &input);
+println!("{:?}", output);
 ```
 
-3. **Generating Minecraft Worlds**: Use the generation library to create a Minecraft world from your trained network.
+1. **Generating Minecraft Worlds**: Use the generation library to create a Minecraft world from your trained network.
 
 ```python
-from minenewt import generate
-generate.world_from_newt("network.newt", "world_directory")
+from editor import world
+from schema import network
+import load
+
+myWorld = world.World('saves/input')
+networkData = load.read_neural_net_file('../example.newt')
+
+network.network(networkData).write(myWorld, (0, 60, 0))
+
+myWorld.close('saves/output')
 ```
 
-This will modify the world data in the specified directory to include the neural network.
+This will create a world in "generation/saves/output" that contains the neural network. You can then copy this world to your Minecraft saves folder.
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md) for more information.
+Please contribute! Submit garbage pull requests! I'm not picky.
 
-## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more information.
+[def]: #minenewt-neural-networks-in-minecraft
