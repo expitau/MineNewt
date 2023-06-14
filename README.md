@@ -2,9 +2,9 @@
 
 MineNewt is a neural network created from scratch in Minecraft using redstone. The network is first compiled using a custom rust library, and is then dynamically generated into a Minecraft world. This allows users to train neural networks on arbitrary functions and import them into Minecraft, effectively acting as a Rust compiler targeting Minecraft.
 
-- [Features](#features)
 - [Gallery](#gallery)
-- [How it Works](#how-it-works)
+- [The Software](#the-software)
+- [The Math](#the-math)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Contributing](#contributing)
