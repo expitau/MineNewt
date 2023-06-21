@@ -1,0 +1,4 @@
+__pycache__
+
+animation/media/*
+!animation/media/gifs

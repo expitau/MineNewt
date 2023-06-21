@@ -11,31 +11,31 @@ MineNewt is a neural network created from scratch in Minecraft using redstone. T
 
 ## Gallery
 
-![Overview](docs/Overview.png)
+![Overview](docs/images/Overview.png)
 <p align="center"><strong>An example network</strong></p>
 <p align="center">This is a network with 64 total neurons that adds two binary numbers and computes their modulus in base 3, 5, and 7. It could in theory compute any compatible Rust function though</p>
 
 <br><br>
 
-![Top-Section](docs/Top-Section.png)
+![Top-Section](docs/images/Top-Section.png)
 <p align="center"><strong>Closer view of example network</strong></p>
 <p align="center">You can see the different components that make up the network, including the activation functions (purple), the weight functions (green), clock lines (blue), and inputs and outputs (orange/yellow)</p>
 
 <br><br>
 
-![Adder](docs/Adder.png)
+![Adder](docs/images/Adder.png)
 <p align="center"><strong>Weight & Addition</strong></p>
 <p align="center">This is one component of a neuron. It is responsible for computing instant-carry addition on a binary input with either -1 or 1, given a weighted input</p>
 
 <br><br>
 
-![Neuron](docs/Neuron.png)
+![Neuron](docs/images/Neuron.png)
 <p align="center"><strong>Full Neuron</strong></p>
 <p align="center">This is the equivalent of one neuron. It takes in 8 inputs, and multiplies each by a weight. It then computes its activation and applies a smoothing function</p>
 
 ## The Software
 
-![Architecture](docs/Architecture.png)
+![Architecture](docs/images/Architecture.png)
 
 MineNewt is composed of three main components:
 
@@ -47,23 +47,62 @@ MineNewt is composed of three main components:
 
 ## The Math
 
-Minecraft redstone is an exceptionally limited way to encode a neural network. Given essentially only the boolean OR and NOT operators, and an operation time of 1/10th of a second, we need to be inventive to ensure that the resulting structure is not too large or takes too long to compute.
+**The following is an introductory explanation that assumes you have a basic understanding of neural networks, binary, and boolean algebra**
 
-The biggest challenge in building a neural network in Minecraft is the representation of accurate floating point numbers. A binary representation like IEEE-754 would be unweildly, due to the complexity of implementing floating point operations in Minecraft. This could take seconds to compute even a single operation, and would require a massive amount of space (as each of the 768 connections would require an individual bus to represent its state). 
+Minecraft redstone is an exceptionally limited way to encode a neural network. It is barely turing-complete via [Pierce Logic](https://en.wikipedia.org/wiki/Logical_NOR), and has an operation time of 0.1s. This means that time and space complexity it critical to the design of the network.
 
-Instead, we need a way to represent a floating point number with only a single redstone line. I chose to use stochastic computing for this, representing a $-1$ as a 0% chance of a redstone line being on, a $0$ as a 50% chance of it being on, and a $1$ as a 100% chance of it being on. To create a neural network in this system, we need to show that it is possible to implement two operations: floating point multiplication, and an activation function.
+The biggest challenge in building a neural network in Minecraft is the representation of accurate floating point numbers. A binary representation like IEEE-754 would be unweildly, due to the complexity of implementing floating point operations in Minecraft. This could take seconds to compute even a single operation, and would require a massive amount of space (as each of the 768 connections would require an individual bus to represent its state). Thus, we utilize **stochastic computing**, where instead of representing a floating point number as any fixed set of bits, we sample the line at various intervals and use the probability of it being on to represent the number.
 
-Multiplication is easy. If we have to probabilities $p_1$ and $p_2$ of bitstreams $b_1$ and $b_2$, then $b_1 \land b_2$ will have a $p_1 \times p_2$ probability of being on when $0 \leq p_1, p_2 \leq 1$. 
+![Stochastic](docs/animation/media/gifs/Stochastic.gif)
 
-![AND](docs/AND.png)
+We will represent all the floating point numbers $f \in [-1, 1]$ (decimal numbers between -1 and 1) by
 
-Observe that when we extend this representation from $[0, 1]$ to $[-1, 1]$, multiplication by opposite signs results in a low sign, and multiplication by the same sign results in a high sign. So, multiplication on this system is represented by $b_1 \odot b_2$ (XNOR), which can be easily implemented in Minecraft.
+$$f = 2p - 1$$
 
-However, computing an activation function is more difficult. We will aim for tanh, as it can be used effectively both for hidden and output layers. We need to both compute the sum of the weighted inputs, as well as the activation itself. There is no sum function on stochastic numbers (as it is not closed on [-1, 1]), so we need to do both of these steps at once. We observe that the sum of different stochastic numbers is greater than zero when there are more $1$s than $0$s in a combined bitstream, and vice-versa.
+where $p$ is the probability of the line being on. 
 
-![Tanh](docs/Tanh.png)
+We need to derive methods for multiplication by a constant and a nonlinear activation sum (adding numbers and applying an activation function) in order to implement a neural network. 
 
-Computing this with the sum of every bit would yield a binary step function, so instead we "smooth" it by taking a rolling average. With some experimentation, we find that a rolling average of $\log_2(n)$ bits (where $n$ is the number of inputs) gives a function of $\tanh(x - 1)$, which is suitable for activation.
+### Multiplication
+Multiplication is easy, because it is a linear operation, we can consider cases on individual bits.
+
+$f_1$ | $f_2$ | $f_1 \times f_2$
+:---: | :---: | :---:
+-1  | -1  | 1
+-1 | 1 | -1
+1 | -1 | -1
+1 | 1 | 1
+
+Converting these with our above representation gives us a truth table for the probabilities in our bitstream
+
+$p_1$ | $p_2$ | $p_1 \otimes p_2$
+:---: | :---: | :---:
+0  | 0  | 1
+0 | 1 | 0
+1 | 0 | 0
+1 | 1 | 1
+
+So, in this system, we find that multiplication is simply the XNOR of the two bitstreams!
+
+### Activation
+
+Computing an activation function is more difficult. Because we can only represent numbers on $[-1, 1]$, any function on our domain must be of the form $\psi : [-1, 1]^N \to [-1, 1]$, so we cannot simply implement addition as $1 + 1 = 2$ would overflow our probability (we cannot have a 200% probability of a bit being on!). So, we need to compute the sum of the weighted inputs and our activation function at the same time.
+
+$$\psi(x_1, x_2, \cdots, x_n) = \tanh\left(\sum_{i=1}^n x_i + c\right)$$
+
+We choose a function of the form $\tanh(x + c)$ because it cleanly fills our working domain of $[-1, 1]$
+
+![Tanh](docs/images/Tanh-Graph.png)
+
+We can approximate this function with a binary step function
+$$\tanh\left(\sum x_i\right) \approx \begin{cases}-1 \;\text{ if } \sum x_i < 0\\1 \;\text{ otherwise}\end{cases}$$
+Observe that if the total number of ones in $\mid\mid_{i = 1}^n x_i$ (concatenating all inputs) is greater than the total number of zeros, then the sum will be positive. 
+
+![Tanh](docs/animation/media/gifs/Tanh.gif)
+
+Evaluating over the infinite bitstream, this would yield a binary step function. However, this would also take an infinite amount of time, and be difficult to train. So, we take a rolling sum, clamping our values to $[-log_2(n), log_2(n)]$ (where $n$ is the number of inputs). This gives us a close approximation of $tanh(x)$ (and indeed approaches $tanh(x)$ as $n \to \infty$). 
+
+![TanhScatter](docs/images/Tanh-Scatter.png)
 
 ## Getting Started
 
