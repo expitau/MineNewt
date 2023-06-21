@@ -96,7 +96,7 @@ We choose a function of the form $\tanh(x + c)$ because it cleanly fills our wor
 
 We can approximate this function with a binary step function
 
-$$\tanh\left(\sum x_i\right) \approx \begin{cases}-1 \;\text{ if } \sum x_i < 0\\1 \;\text{ otherwise}\end{cases}$$
+$$\tanh\left(\sum x_i\right) \approx \begin{cases}-1 \\;\text{ if } \sum x_i < 0\\\\ 1 \\;\text{ otherwise}\end{cases}$$
 
 Observe that if the total number of ones in $\mid\mid_{i = 1}^n x_i$ (concatenating all inputs) is greater than the total number of zeros, then the sum will be positive. 
 
