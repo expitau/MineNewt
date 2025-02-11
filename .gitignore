@@ -1,0 +1,4 @@
+!/generation/saves/output/.gitkeep
+__pycache__
+/generation/saves/output/**
+/.models/**
